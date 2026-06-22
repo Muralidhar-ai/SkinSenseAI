@@ -404,3 +404,49 @@ Format the response in clean HTML with proper headings using <h3> and <ul> tags.
     except Exception as e:
         print(f"[SkinSense AI] Groq API call failed: {e}. Falling back to offline profiles.")
         return fallback_html
+
+def chat_assistant(user_message, disease_name):
+    """
+    Queries Groq's LLaMA 3.1 8b instant model to answer follow-up questions
+    about the analyzed skin condition.
+    """
+    global GROQ_API_KEY
+    load_dotenv(override=True)
+    GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+    
+    if not GROQ_API_KEY or "your_groq_api_key" in GROQ_API_KEY or GROQ_API_KEY == "":
+        return "The AI assistant is currently in offline mode. Please verify the Groq API key is set."
+        
+    try:
+        client = Groq(api_key=GROQ_API_KEY)
+        
+        system_prompt = (
+            f"You are a helpful, professional dermatological assistant for SkinSense AI. "
+            f"The patient has uploaded a skin image analyzed as: {disease_name}. "
+            f"Answer their questions, clarify their doubts, or explain symptoms, precautions, and care. "
+            f"Keep the tone empathetic, clear, and professional. Limit the answer to 3-4 paragraphs max. "
+            f"Crucially, always remind the user that this is an AI assistant, not a clinical diagnosis, "
+            f"and they should consult a real dermatologist for proper treatment."
+        )
+        
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "system",
+                    "content": system_prompt
+                },
+                {
+                    "role": "user",
+                    "content": user_message
+                }
+            ],
+            model="llama-3.1-8b-instant",
+            temperature=0.3,
+            max_tokens=1024
+        )
+        
+        return chat_completion.choices[0].message.content.strip()
+        
+    except Exception as e:
+        print(f"[SkinSense AI] Chat assistant error: {e}")
+        return "I encountered an error answering your request. Please try again shortly."

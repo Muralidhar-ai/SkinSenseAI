@@ -7,7 +7,7 @@ from werkzeug.utils import secure_filename
 
 # Import our custom utilities
 from utils.predict import predict_disease
-from utils.groq_helper import get_disease_info
+from utils.groq_helper import get_disease_info, chat_assistant
 
 # ReportLab imports for generating PDF reports
 from reportlab.lib.pagesizes import letter
@@ -343,6 +343,22 @@ def download_report(filename):
         print(f"[SkinSense AI] Error generating PDF report: {e}")
         flash("An error occurred while creating the PDF report.")
         return redirect(url_for('index'))
+
+@app.route('/chat', methods=['POST'])
+def chat():
+    try:
+        data = request.get_json() or {}
+        user_message = data.get("message", "").strip()
+        disease_name = data.get("disease_name", "").strip()
+        
+        if not user_message:
+            return {"response": "Message cannot be empty."}, 400
+            
+        response_text = chat_assistant(user_message, disease_name)
+        return {"response": response_text}
+    except Exception as e:
+        print(f"[SkinSense AI] Chat route error: {e}")
+        return {"response": "An unexpected error occurred. Please try again later."}, 500
 
 if __name__ == '__main__':
     # Flask will bind to all network interfaces on port 5000

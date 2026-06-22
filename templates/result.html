@@ -186,6 +186,27 @@
                     <!-- Content will be moved here by JS -->
                 </div>
 
+                <!-- AI Doubts Clarification Chatbox -->
+                <div class="glass-card mb-4 mt-4">
+                    <h4 class="text-teal mb-3"><i class="fa-solid fa-comments me-2"></i>Clarify Your Doubts (AI Assistant)</h4>
+                    <p class="text-muted small mb-3">Ask follow-up questions or clarify doubts regarding the predicted condition (e.g., symptoms, food precautions, home care guidelines, doctor visit urgencies).</p>
+                    
+                    <!-- Chat Messages Container -->
+                    <div id="chat-messages" class="chat-container">
+                        <div class="chat-bubble chat-bubble-bot">
+                            Hello! I'm your skin health helper. Do you have any questions or doubts about <strong>{{ disease_name }}</strong>? Type them below.
+                        </div>
+                    </div>
+                    
+                    <!-- Input Box -->
+                    <form id="chat-form" class="d-flex gap-2">
+                        <input type="text" id="chat-input" class="form-control chat-input-field" placeholder="Ask about symptoms, diet precautions, home care..." required>
+                        <button type="submit" class="btn btn-primary-custom px-4" style="border-radius: 10px;">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+
             </div>
 
         </div>
@@ -331,6 +352,85 @@
                     tamilCard.appendChild(container);
                     tamilCard.style.display = "block";
                 }
+            }
+
+            // 5. AI Doubts Clarification Chatbox handler
+            const chatForm = document.getElementById("chat-form");
+            const chatInput = document.getElementById("chat-input");
+            const chatMessages = document.getElementById("chat-messages");
+
+            if (chatForm && chatInput && chatMessages) {
+                chatForm.addEventListener("submit", function(e) {
+                    e.preventDefault();
+                    const message = chatInput.value.trim();
+                    if (!message) return;
+
+                    // Append user message
+                    const userMsgDiv = document.createElement("div");
+                    userMsgDiv.className = "chat-bubble chat-bubble-user";
+                    userMsgDiv.innerHTML = escapeHTML(message);
+                    chatMessages.appendChild(userMsgDiv);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+                    // Clear input
+                    chatInput.value = '';
+
+                    // Add typing loader
+                    const loadingDiv = document.createElement("div");
+                    loadingDiv.className = "chat-bubble chat-bubble-typing chat-typing-loader";
+                    loadingDiv.innerHTML = `<i class="fa-solid fa-spinner fa-spin me-1"></i> Thinking...`;
+                    chatMessages.appendChild(loadingDiv);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+                    // Send API request
+                    fetch("/chat", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            message: message,
+                            disease_name: "{{ disease_name }}"
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        // Remove loading
+                        loadingDiv.remove();
+
+                        // Append bot response
+                        const botMsgDiv = document.createElement("div");
+                        botMsgDiv.className = "chat-bubble chat-bubble-bot";
+                        
+                        // Parse simple newlines
+                        const formattedResponse = escapeHTML(data.response || "No response received.")
+                            .replace(/\n/g, "<br>");
+                            
+                        botMsgDiv.innerHTML = formattedResponse;
+                        chatMessages.appendChild(botMsgDiv);
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                    })
+                    .catch(err => {
+                        loadingDiv.remove();
+                        const errorDiv = document.createElement("div");
+                        errorDiv.className = "chat-bubble chat-bubble-typing text-danger";
+                        errorDiv.innerHTML = `Error connecting to AI assistant. Please try again.`;
+                        chatMessages.appendChild(errorDiv);
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                    });
+                });
+            }
+
+            function escapeHTML(str) {
+                return str.replace(/[&<>'"]/g, 
+                    tag => ({
+                        '&': '&amp;',
+                        '<': '&lt;',
+                        '>': '&gt;',
+                        "'": '&#39;',
+                        '"': '&quot;'
+                    }[tag] || tag)
+                );
             }
         });
       </script>
