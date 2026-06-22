@@ -84,13 +84,7 @@
                             <input type="file" name="file" id="file-input" accept=".png, .jpg, .jpeg, .webp" required>
                         </div>
 
-                        <!-- Demo Button Helper -->
-                        <div class="text-center mt-3">
-                            <span class="text-muted small">Don't have an image?</span>
-                            <button type="button" class="btn btn-sm btn-outline-secondary ms-2" id="use-demo-btn" style="border-color: rgba(29, 158, 117, 0.4); color: var(--primary-color); font-weight: 500;">
-                                <i class="fa-solid fa-flask me-1"></i> Load Demo Image
-                            </button>
-                        </div>
+
 
                         <!-- Image Preview -->
                         <div class="preview-container" id="preview-box">
@@ -191,48 +185,6 @@
             }
         }
 
-        // Demo button click handler
-        const demoBtn = document.getElementById('use-demo-btn');
-        if (demoBtn) {
-            demoBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                // Create canvas
-                const canvas = document.createElement('canvas');
-                canvas.width = 224;
-                canvas.height = 224;
-                const ctx = canvas.getContext('2d');
-                
-                // Draw base skin tone
-                ctx.fillStyle = '#f5c3a6';
-                ctx.fillRect(0, 0, 224, 224);
-                
-                // Draw irregular lesion spot
-                ctx.fillStyle = '#7a3e20';
-                ctx.beginPath();
-                ctx.arc(112, 112, 40, 0, Math.PI * 2);
-                ctx.fill();
-                
-                ctx.fillStyle = '#4a2512';
-                ctx.beginPath();
-                ctx.arc(102, 105, 20, 0, Math.PI * 2);
-                ctx.fill();
-                
-                // Convert to file blob
-                canvas.toBlob(function(blob) {
-                    const file = new File([blob], "demo_lesion.jpg", { type: "image/jpeg" });
-                    
-                    // Create DataTransfer
-                    const dt = new DataTransfer();
-                    dt.items.add(file);
-                    fileInput.files = dt.files;
-                    
-                    // Show preview and button
-                    handleFiles(file);
-                }, 'image/jpeg');
-            });
-        }
 
         // File browser listener
         fileInput.addEventListener('change', function() {
