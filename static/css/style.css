@@ -557,3 +557,131 @@ footer {
 .row > div:nth-child(1) .glass-card { animation-delay: 0.05s; }
 .row > div:nth-child(2) .glass-card { animation-delay: 0.1s; }
 .row > div:nth-child(3) .glass-card { animation-delay: 0.15s; }
+
+/* Stat Cards for telemetry dashboard */
+.stat-card {
+    background: rgba(17, 24, 39, 0.45);
+    border: 1px solid rgba(14, 165, 233, 0.15);
+    border-radius: 20px;
+    padding: 24px 20px;
+    text-align: center;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.stat-card:hover {
+    border-color: rgba(14, 165, 233, 0.35);
+    transform: translateY(-4px);
+    box-shadow: 0 15px 30px rgba(14, 165, 233, 0.1);
+}
+
+.stat-icon {
+    font-size: 2rem;
+    color: #38bdf8;
+    margin-bottom: 12px;
+    text-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+}
+
+.stat-value {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 4px;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+/* Process steps / How It Works */
+.process-step {
+    position: relative;
+    background: rgba(17, 24, 39, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 30px 24px;
+    text-align: center;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    height: 100%;
+}
+
+.process-step:hover {
+    border-color: rgba(14, 165, 233, 0.3);
+    background: rgba(17, 24, 39, 0.6);
+    transform: translateY(-4px);
+    box-shadow: 0 15px 35px rgba(14, 165, 233, 0.08);
+}
+
+.process-number {
+    position: absolute;
+    top: -16px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 12px rgba(14, 165, 233, 0.4);
+}
+
+.process-icon {
+    font-size: 2.2rem;
+    color: #38bdf8;
+    margin-bottom: 16px;
+    margin-top: 6px;
+    text-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
+}
+
+.process-step h5 {
+    color: #ffffff;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.process-step p {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    margin-bottom: 0;
+    line-height: 1.5;
+}
+
+/* Custom circular rating progress */
+.circular-progress-glow {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: conic-gradient(var(--primary-color) 0%, rgba(255,255,255,0.05) 0%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    box-shadow: 0 0 20px rgba(14, 165, 233, 0.15);
+}
+
+.circular-progress-glow::before {
+    content: "";
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background-color: #0d111d; /* Matches dark card content background */
+}
+
+.circular-progress-value {
+    position: relative;
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #ffffff;
+    z-index: 2;
+}

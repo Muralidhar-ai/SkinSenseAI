@@ -16,24 +16,31 @@
     <!-- Loading Overlay Spinner -->
     <div id="loading-overlay">
         <div class="pulse-spinner"></div>
-        <h3 class="text-dark fw-bold">Analyzing Skin Image...</h3>
-        <p class="text-muted">Running multimodal AI vision analysis & compiling clinical diagnostics</p>
+        <h3 class="fw-bold">Analyzing image with AI vision core...</h3>
+        <p class="text-muted">Running dermal classification and compiling medical reports</p>
     </div>
 
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom py-3">
+    <!-- Sticky Glassmorphic Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
         <div class="container">
             <a class="navbar-brand navbar-brand-custom" href="/" style="display: flex; flex-direction: column; align-items: flex-start; gap: 0;">
                 <div style="display: flex; align-items: center; gap: 8px;">
-                    🔬 <span>SkinSense AI</span>
+                    🔬 <span style="font-family: 'Outfit'; font-weight: 800; letter-spacing: -0.02em;">SkinSense AI</span>
                 </div>
-                <span class="text-white-50" style="font-size: 0.7rem; font-weight: 400; margin-left: 28px; margin-top: -2px;">
-                    Internship Project by Muralidhar and Rohindh, Paavai Engineering College
+                <span class="text-white-50" style="font-size: 0.75rem; font-weight: 400; margin-left: 28px; margin-top: -2px;">
+                    AI-Powered Skin Disease Analyzer
                 </span>
             </a>
-            <div class="ms-auto">
-                <span class="badge bg-secondary text-uppercase py-2 px-3 border border-secondary" style="font-weight: 500;">
+            
+            <div class="ms-auto d-none d-md-flex align-items-center gap-2">
+                <span class="badge bg-secondary text-uppercase py-2 px-3 border border-secondary" style="font-weight: 500; font-size: 0.75rem;">
                     <i class="fa-solid fa-brain me-1 text-teal"></i> AI Vision Core
+                </span>
+                <span class="badge bg-secondary text-uppercase py-2 px-3 border border-secondary" style="font-weight: 500; font-size: 0.75rem;">
+                    <i class="fa-solid fa-microscope me-1 text-teal"></i> CNN Powered
+                </span>
+                <span class="badge bg-secondary text-uppercase py-2 px-3 border border-secondary" style="font-weight: 500; font-size: 0.75rem;">
+                    <i class="fa-solid fa-bolt me-1 text-teal"></i> Groq LLaMA 3.1
                 </span>
             </div>
         </div>
@@ -42,10 +49,37 @@
     <!-- Hero Header -->
     <header class="hero-section">
         <div class="container">
-            <h1 class="hero-title" style="font-size: 2.8rem; color: var(--secondary-color); margin-bottom: 5px;">SkinSense AI</h1>
+            <h1 class="hero-title">SkinSense AI</h1>
             <h5 class="text-muted fw-bold mb-2">AI-Powered Skin Disease Analyzer</h5>
-            <p class="text-secondary small mb-3"><strong>Internship Project</strong> | Team: Muralidhar and Rohindh, Paavai Engineering College</p>
-            <p class="hero-subtitle" style="font-size: 0.95rem; max-width: 700px; margin: 0 auto;">Upload a skin image for instant AI analysis, differential classification, and localized medical product recommendations.</p>
+            <p class="text-secondary small mb-4"><strong>Internship Project</strong> | Team: Muralidhar and Rohindh, Paavai Engineering College</p>
+            <p class="hero-subtitle mx-auto" style="max-width: 720px; line-height: 1.6;">
+                Upload a skin image to get AI-based prediction, alternative diagnostics, and supportive medical product suggestions across Allopathy, Homeopathy, and Siddha systems.
+            </p>
+
+            <!-- 3 Telemetry Statistic Cards -->
+            <div class="row g-4 mt-4 justify-content-center">
+                <div class="col-md-4 col-sm-6">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fa-regular fa-image"></i></div>
+                        <div class="stat-value">Instant</div>
+                        <div class="stat-label">Image Analysis Scan</div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fa-solid fa-brain"></i></div>
+                        <div class="stat-value">Vision LLM</div>
+                        <div class="stat-label">Dermal Feature Classifier</div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fa-solid fa-briefcase-medical"></i></div>
+                        <div class="stat-value">3 Systems</div>
+                        <div class="stat-label">Product Guidance Suggestions</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </header>
 
@@ -58,7 +92,7 @@
                 <div class="row justify-content-center mb-4">
                     <div class="col-lg-8 col-md-10">
                         {% for message in messages %}
-                            <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm" role="alert" style="background-color: rgba(217, 83, 79, 0.2); color: #ff8580;">
+                            <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm" role="alert">
                                 <i class="fa-solid fa-triangle-exclamation me-2"></i> {{ message }}
                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
@@ -77,18 +111,16 @@
                         <!-- Drag & Drop Area -->
                         <div class="upload-box" id="drop-area">
                             <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
-                            <h4 class="mb-2">Drag and drop your skin image here</h4>
+                            <h4 class="mb-2 text-white">Drag and drop your skin image here</h4>
                             <p class="text-muted mb-3">or click to browse local files</p>
                             <span class="btn btn-outline-custom mb-2">Browse Image</span>
                             <p class="small text-muted mb-0">Supported formats: PNG, JPG, JPEG, WEBP (Max 16MB)</p>
                             <input type="file" name="file" id="file-input" accept=".png, .jpg, .jpeg, .webp" required>
                         </div>
 
-
-
                         <!-- Image Preview -->
                         <div class="preview-container" id="preview-box">
-                            <h5 class="my-3 text-start"><i class="fa-regular fa-image me-2 text-teal"></i>Selected Image Preview</h5>
+                            <h5 class="my-3 text-start text-white"><i class="fa-regular fa-image me-2 text-teal"></i>Selected Image Preview</h5>
                             <img src="" alt="Skin Lesion Preview" id="img-preview" class="image-preview mb-3">
                             <div class="d-grid mt-2">
                                 <button type="submit" class="btn btn-primary-custom py-3 text-uppercase" id="submit-btn">
@@ -102,36 +134,44 @@
             </div>
         </div>
 
-        <!-- Features Matrix -->
-        <div class="row g-4 justify-content-center mb-5">
-            <div class="col-md-4">
-                <div class="glass-card feature-card text-center text-md-start">
-                    <div class="feature-icon-container mx-auto mx-md-0">
-                        <i class="fa-solid fa-bolt"></i>
+        <!-- How It Works Section -->
+        <section class="mt-5 mb-5">
+            <h3 class="text-center mb-5 text-white"><i class="fa-solid fa-circle-info text-teal me-2"></i>How It Works</h3>
+            <div class="row g-4">
+                <div class="col-lg-3 col-md-6">
+                    <div class="process-step">
+                        <div class="process-number">1</div>
+                        <div class="process-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+                        <h5>Upload Image</h5>
+                        <p>Drag or select a clear, close-up image of the affected skin patch or lesion.</p>
                     </div>
-                    <h4>Instant Analysis</h4>
-                    <p class="text-muted mb-0">Our advanced multimodal AI vision model runs instant classification scans in seconds.</p>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="process-step">
+                        <div class="process-number">2</div>
+                        <div class="process-icon"><i class="fa-solid fa-microscope"></i></div>
+                        <h5>CNN Prediction</h5>
+                        <p>Advanced AI vision classifiers analyze the lesion structure to predict the condition.</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="process-step">
+                        <div class="process-number">3</div>
+                        <div class="process-icon"><i class="fa-solid fa-briefcase-medical"></i></div>
+                        <h5>AI Suggestions</h5>
+                        <p>Generates treatment suggestions across Allopathy, Homeopathy, and Siddha systems.</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="process-step">
+                        <div class="process-number">4</div>
+                        <div class="process-icon"><i class="fa-solid fa-user-doctor"></i></div>
+                        <h5>Supportive Guidance</h5>
+                        <p>Provides a Tamil translation summary and a downloadable PDF report for reference.</p>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="glass-card feature-card text-center text-md-start">
-                    <div class="feature-icon-container mx-auto mx-md-0">
-                        <i class="fa-solid fa-prescription-bottle-medical"></i>
-                    </div>
-                    <h4>Product Suggestions</h4>
-                    <p class="text-muted mb-0">Get customized lists of active OTC medications and treatments locally available in India.</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="glass-card feature-card text-center text-md-start">
-                    <div class="feature-icon-container mx-auto mx-md-0">
-                        <i class="fa-solid fa-language"></i>
-                    </div>
-                    <h4>Tamil Support</h4>
-                    <p class="text-muted mb-0">Translates diagnostic findings and precautions into Tamil to bridge language barriers.</p>
-                </div>
-            </div>
-        </div>
+        </section>
 
     </main>
 
@@ -185,7 +225,6 @@
             }
         }
 
-
         // File browser listener
         fileInput.addEventListener('change', function() {
             if (this.files.length > 0) {
@@ -212,10 +251,8 @@
 
         // Form Submit spinner trigger
         uploadForm.addEventListener('submit', function() {
-            loadingOverlay.querySelector('h3').textContent = "Analyzing Skin Image...";
             loadingOverlay.classList.add('active');
         });
-
     </script>
 </body>
 </html>
