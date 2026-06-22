@@ -191,6 +191,20 @@
                     <!-- Content populated dynamically via Javascript -->
                 </div>
 
+                <!-- Quick Access to Floating Chat (scroll hint) -->
+                <div class="glass-card mb-4" style="background: linear-gradient(135deg, rgba(14,165,233,0.08), rgba(13,148,136,0.06)); border-color: rgba(14,165,233,0.25);">
+                    <div class="d-flex align-items-center gap-3">
+                        <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#0d9488);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;box-shadow:0 0 18px rgba(14,165,233,0.3);">
+                            🤖
+                        </div>
+                        <div>
+                            <div style="font-family:'Outfit';font-weight:700;color:#fff;font-size:1rem;">AI Skin Assistant</div>
+                            <div class="small text-muted">Have questions about your diagnosis? Chat with our AI below ↘</div>
+                        </div>
+                        <span class="online-dot ms-auto" style="flex-shrink:0;"></span>
+                    </div>
+                </div>
+
                 <!-- AI Doubts Enquiry Chatbox -->
                 <div class="glass-card mb-4 mt-4">
                     <h4 class="text-teal mb-3"><i class="fa-solid fa-comments me-2"></i>Clarify Your Doubts (AI Assistant)</h4>
@@ -224,6 +238,48 @@
             <p class="mb-0 small text-muted">&copy; 2026 SkinSense AI | Internship Project by Muralidhar and Rohindh, Paavai Engineering College.</p>
         </div>
     </footer>
+
+    <!-- ============================================================
+         FLOATING AI CHAT BUTTON (always visible)
+         ============================================================ -->
+    <button id="floating-chat-btn" title="Ask AI Assistant" aria-label="Open AI Chat Assistant">
+        <span class="chat-badge" id="chat-unread-badge">1</span>
+        <i class="fa-solid fa-comments"></i>
+    </button>
+
+    <!-- Floating Chat Panel (expands on click) -->
+    <div id="floating-chat-panel" role="dialog" aria-modal="true" aria-label="AI Skin Assistant Chat">
+        <!-- Header -->
+        <div class="chat-panel-header">
+            <div class="chat-title">
+                <div class="ai-avatar">🤖</div>
+                <div>
+                    <div style="font-size:0.95rem;font-weight:700;">AI Skin Assistant</div>
+                    <div style="font-size:0.72rem;color:#5eead4;display:flex;align-items:center;gap:5px;">
+                        <span class="online-dot"></span> Online &bull; {{ disease_name }}
+                    </div>
+                </div>
+            </div>
+            <button class="chat-panel-close" id="floating-chat-close" aria-label="Close chat">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- Messages area -->
+        <div class="chat-panel-messages" id="floating-chat-messages">
+            <div class="chat-bubble chat-bubble-bot">
+                👋 Hello! I'm your skin health assistant. Ask me anything about <strong>{{ disease_name }}</strong> — symptoms, diet, home care, or when to see a doctor.
+            </div>
+        </div>
+
+        <!-- Input area -->
+        <div class="chat-panel-input">
+            <input type="text" id="floating-chat-input" placeholder="Ask about symptoms, diet, home care..." autocomplete="off">
+            <button id="floating-chat-send" aria-label="Send message">
+                <i class="fa-solid fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
 
     <!-- Bootstrap 5 JavaScript Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -333,42 +389,82 @@
                 document.getElementById("treatments-section").style.display = "block";
             }
 
-            // 4. Extract Tamil translation box
-            const contentBox = document.getElementById("disease-info-content");
-            const tamilCard = document.getElementById("tamil-summary-card");
-            
-            if (contentBox && tamilCard) {
-                const headings = contentBox.querySelectorAll("h3");
-                let tamilHeading = null;
-                
-                for (let h of headings) {
-                    const text = h.textContent.toLowerCase();
-                    if (text.includes("tamil") || text.includes("தமிழ்")) {
-                        tamilHeading = h;
-                        break;
+            // 4. Extract Tamil translation box — multi-strategy robust extraction
+            (function extractTamilSection() {
+                const contentBox = document.getElementById("disease-info-content");
+                const tamilCard = document.getElementById("tamil-summary-card");
+                if (!contentBox || !tamilCard) return;
+
+                // Strategy A: Find heading by id="tamil-section" (set by Groq prompt marker)
+                let tamilHeading = contentBox.querySelector("[id='tamil-section'], [data-section='tamil']");
+
+                // Strategy B: Find heading by text containing 'tamil', 'தமிழ்', 'summary' near tamil
+                if (!tamilHeading) {
+                    const headings = contentBox.querySelectorAll("h2, h3, h4, h5");
+                    for (let h of headings) {
+                        const text = h.textContent.toLowerCase();
+                        if (text.includes("tamil") || text.includes("தமிழ்") || text.includes("translation")) {
+                            tamilHeading = h;
+                            break;
+                        }
                     }
                 }
-                
+
                 if (tamilHeading) {
+                    // Collect all siblings until next same-level heading
                     const container = document.createElement("div");
-                    
                     const title = document.createElement("div");
                     title.className = "tamil-title";
-                    title.innerHTML = '<i class="fa-solid fa-language me-2"></i>' + tamilHeading.innerHTML;
+                    title.innerHTML = '<i class="fa-solid fa-language me-2"></i>தமிழ் விளக்கம் — Tamil Summary';
                     container.appendChild(title);
-                    
-                    let nextElement = tamilHeading.nextElementSibling;
-                    while (nextElement && nextElement.tagName !== 'H3') {
-                        const targetSibling = nextElement.nextElementSibling;
-                        container.appendChild(nextElement);
-                        nextElement = targetSibling;
+
+                    let nextEl = tamilHeading.nextElementSibling;
+                    while (nextEl && !['H2','H3','H4','H5'].includes(nextEl.tagName)) {
+                        const sibling = nextEl.nextElementSibling;
+                        container.appendChild(nextEl);
+                        nextEl = sibling;
                     }
-                    
                     tamilHeading.remove();
+                    tamilCard.innerHTML = '';
+                    tamilCard.appendChild(container);
+                    tamilCard.style.display = "block";
+                    return;
+                }
+
+                // Strategy C: Deep scan — find any element containing Tamil Unicode (\u0b80-\u0bff)
+                // Collect all paragraphs/list items regardless of nesting depth
+                const tamilElements = [];
+                const allTextNodes = contentBox.querySelectorAll("p, li, span, div");
+                for (let el of allTextNodes) {
+                    // Only move leaf-level elements with Tamil text (no child elements with Tamil)
+                    const hasTamil = /[\u0b80-\u0bff]/.test(el.textContent);
+                    const hasChildWithTamil = [...el.children].some(c => /[\u0b80-\u0bff]/.test(c.textContent));
+                    if (hasTamil && !hasChildWithTamil) {
+                        // Walk up to find the top-level block under contentBox
+                        let ancestor = el;
+                        while (ancestor.parentElement && ancestor.parentElement !== contentBox) {
+                            ancestor = ancestor.parentElement;
+                        }
+                        if (!tamilElements.includes(ancestor)) {
+                            tamilElements.push(ancestor);
+                        }
+                    }
+                }
+
+                if (tamilElements.length > 0) {
+                    const container = document.createElement("div");
+                    const title = document.createElement("div");
+                    title.className = "tamil-title";
+                    title.innerHTML = '<i class="fa-solid fa-language me-2"></i>தமிழ் விளக்கம் — Tamil Summary';
+                    container.appendChild(title);
+                    for (let el of tamilElements) {
+                        container.appendChild(el);
+                    }
+                    tamilCard.innerHTML = '';
                     tamilCard.appendChild(container);
                     tamilCard.style.display = "block";
                 }
-            }
+            })();
 
             // 5. AI Doubts Enquiry Chatbox submit handler
             const chatForm = document.getElementById("chat-form");
@@ -446,6 +542,91 @@
                     }[tag] || tag)
                 );
             }
+
+            // =============================================
+            // FLOATING CHAT BUTTON LOGIC
+            // =============================================
+            const floatingBtn = document.getElementById('floating-chat-btn');
+            const floatingPanel = document.getElementById('floating-chat-panel');
+            const floatingClose = document.getElementById('floating-chat-close');
+            const floatingInput = document.getElementById('floating-chat-input');
+            const floatingSend = document.getElementById('floating-chat-send');
+            const floatingMessages = document.getElementById('floating-chat-messages');
+            const unreadBadge = document.getElementById('chat-unread-badge');
+
+            function toggleFloatingChat() {
+                const isOpen = floatingPanel.classList.contains('open');
+                if (isOpen) {
+                    floatingPanel.classList.remove('open');
+                    floatingPanel.style.display = 'none';
+                    floatingBtn.querySelector('i').className = 'fa-solid fa-comments';
+                } else {
+                    floatingPanel.style.display = 'flex';
+                    floatingPanel.classList.add('open');
+                    floatingBtn.querySelector('i').className = 'fa-solid fa-xmark';
+                    // Hide unread badge
+                    if (unreadBadge) unreadBadge.style.display = 'none';
+                    // Re-trigger animation
+                    floatingPanel.style.animation = 'none';
+                    floatingPanel.offsetHeight; // reflow
+                    floatingPanel.style.animation = 'chatPanelOpen 0.3s cubic-bezier(0.16, 1, 0.3, 1)';
+                    if (floatingInput) floatingInput.focus();
+                    floatingMessages.scrollTop = floatingMessages.scrollHeight;
+                }
+            }
+
+            floatingBtn.addEventListener('click', toggleFloatingChat);
+            floatingClose.addEventListener('click', toggleFloatingChat);
+
+            // Send message function (shared with floating chat)
+            function sendFloatingMessage() {
+                const message = floatingInput.value.trim();
+                if (!message) return;
+
+                // User bubble
+                const userDiv = document.createElement('div');
+                userDiv.className = 'chat-bubble chat-bubble-user';
+                userDiv.textContent = message;
+                floatingMessages.appendChild(userDiv);
+                floatingMessages.scrollTop = floatingMessages.scrollHeight;
+                floatingInput.value = '';
+
+                // Typing indicator
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'chat-bubble chat-bubble-typing chat-typing-loader';
+                typingDiv.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Thinking...';
+                floatingMessages.appendChild(typingDiv);
+                floatingMessages.scrollTop = floatingMessages.scrollHeight;
+
+                fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message, disease_name: '{{ disease_name }}' })
+                })
+                .then(r => r.json())
+                .then(data => {
+                    typingDiv.remove();
+                    const botDiv = document.createElement('div');
+                    botDiv.className = 'chat-bubble chat-bubble-bot';
+                    const formatted = escapeHTML(data.response || 'No response received.').replace(/\n/g, '<br>');
+                    botDiv.innerHTML = formatted;
+                    floatingMessages.appendChild(botDiv);
+                    floatingMessages.scrollTop = floatingMessages.scrollHeight;
+                })
+                .catch(() => {
+                    typingDiv.remove();
+                    const errDiv = document.createElement('div');
+                    errDiv.className = 'chat-bubble chat-bubble-typing text-danger';
+                    errDiv.textContent = 'Connection error. Please try again.';
+                    floatingMessages.appendChild(errDiv);
+                    floatingMessages.scrollTop = floatingMessages.scrollHeight;
+                });
+            }
+
+            floatingSend.addEventListener('click', sendFloatingMessage);
+            floatingInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') { e.preventDefault(); sendFloatingMessage(); }
+            });
 
         });
     </script>

@@ -330,11 +330,11 @@ def get_disease_info(disease_name):
 Please provide:
 1. A brief explanation of why the result is inconclusive (1-2 sentences)
 2. Precautions and general home care tips (3 bullet points: gentle cleanser, avoid scratching/picking, sunscreen)
-3. A Tamil language summary of the condition and advice (3-4 sentences in Tamil)
+3. A Tamil language summary of the condition and advice (3-4 sentences in Tamil script)
 4. Doctor visit recommendation: Yes or No with reason
 
 Do NOT provide any specific disease names, diagnoses, or over-the-counter medical product recommendations. Provide general supportive advice only.
-Format the response in clean HTML with proper headings using <h3> and <ul> tags. Do not wrap in a markdown block, just output the raw HTML."""
+Format the response in clean HTML with proper headings using <h3> and <ul> tags. IMPORTANT: The Tamil section heading MUST be written exactly as: <h3 id="tamil-section">Tamil Summary (தமிழ் சுருக்கம்)</h3>. Do not wrap in a markdown block, just output the raw HTML."""
         
         elif matched_key in ['Basal Cell Carcinoma', 'Melanoma']:
             user_prompt = f"""The patient's skin image has been analyzed and the predicted condition is: {disease_name}.
@@ -344,10 +344,10 @@ Please provide:
 2. Common causes (3 bullet points)
 3. Precautions and home care tips (3 bullet points)
 4. Critical Medical Recommendation: Explain clearly in bullet points that no over-the-counter (OTC) products or home treatments can treat or cure this cancer, and a dermatologist or oncologist visit is mandatory for a biopsy and surgical excision.
-5. A Tamil language summary of the condition and advice emphasizing direct medical consult and avoiding self-treatment (3-4 sentences in Tamil)
+5. A Tamil language summary of the condition and advice emphasizing direct medical consult and avoiding self-treatment (3-4 sentences in Tamil script)
 6. Doctor visit recommendation: Yes or No with reason (Should be Yes, Urgent)
 
-Format the response in clean HTML with proper headings using <h3> and <ul> tags. Do not wrap in a markdown block, just output the raw HTML."""
+Format the response in clean HTML with proper headings using <h3> and <ul> tags. IMPORTANT: The Tamil section heading MUST be written exactly as: <h3 id="tamil-section">Tamil Summary (தமிழ் சுருக்கம்)</h3>. Do not wrap in a markdown block, just output the raw HTML."""
         
         else:
             user_prompt = f"""The patient's skin image has been analyzed and the predicted condition is: {disease_name}.
@@ -359,10 +359,10 @@ Please provide:
    - Allopathy Suggestions (OTC creams, lotions, or tablets with brand name, type, and usage)
    - Homeopathy Suggestions (remedies or tablets with name, potency, and usage)
    - Siddha Suggestions (traditional formulations, choornams, or thailams with name and usage)
-5. A Tamil language summary of the condition and advice (3-4 sentences in Tamil)
+5. A Tamil language summary of the condition and advice (3-4 sentences in Tamil script)
 6. Doctor visit recommendation: Yes or No with reason
 
-Format the response in clean HTML with proper headings using <h3> and <ul> tags. Each treatment category must have its own <h3> heading. Do not wrap in a markdown block, just output the raw HTML."""
+Format the response in clean HTML with proper headings using <h3> and <ul> tags. Each treatment category must have its own <h3> heading. IMPORTANT: The Tamil section heading MUST be written exactly as: <h3 id="tamil-section">Tamil Summary (தமிழ் சுருக்கம்)</h3>. Do not wrap in a markdown block, just output the raw HTML."""
 
         print(f"[SkinSense AI] Calling Groq API with LLaMA-3 for condition: {disease_name}...")
         
