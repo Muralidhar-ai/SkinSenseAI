@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkinSense AI - AI-Powered Skin Disease Analyzer</title>
+    <!-- Bootstrap 5 CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- Loading Overlay Spinner -->
+    <div id="loading-overlay">
+        <div class="pulse-spinner"></div>
+        <h3 class="text-dark fw-bold">Analyzing Skin Image...</h3>
+        <p class="text-muted">Running multimodal AI vision analysis & compiling clinical diagnostics</p>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom py-3">
+        <div class="container">
+            <a class="navbar-brand navbar-brand-custom" href="/" style="display: flex; flex-direction: column; align-items: flex-start; gap: 0;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    🔬 <span>SkinSense AI</span>
+                </div>
+                <span class="text-white-50" style="font-size: 0.7rem; font-weight: 400; margin-left: 28px; margin-top: -2px;">
+                    Internship Project by Muralidhar and Rohindh, Paavai Engineering College
+                </span>
+            </a>
+            <div class="ms-auto">
+                <span class="badge bg-secondary text-uppercase py-2 px-3 border border-secondary" style="font-weight: 500;">
+                    <i class="fa-solid fa-brain me-1 text-teal"></i> AI Vision Core
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Header -->
+    <header class="hero-section">
+        <div class="container">
+            <h1 class="hero-title" style="font-size: 2.8rem; color: var(--secondary-color); margin-bottom: 5px;">SkinSense AI</h1>
+            <h5 class="text-muted fw-bold mb-2">AI-Powered Skin Disease Analyzer</h5>
+            <p class="text-secondary small mb-3"><strong>Internship Project</strong> | Team: Muralidhar and Rohindh, Paavai Engineering College</p>
+            <p class="hero-subtitle" style="font-size: 0.95rem; max-width: 700px; margin: 0 auto;">Upload a skin image for instant AI analysis, differential classification, and localized medical product recommendations.</p>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="container my-4">
+        
+        <!-- Flash Alert Messages -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="row justify-content-center mb-4">
+                    <div class="col-lg-8 col-md-10">
+                        {% for message in messages %}
+                            <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm" role="alert" style="background-color: rgba(217, 83, 79, 0.2); color: #ff8580;">
+                                <i class="fa-solid fa-triangle-exclamation me-2"></i> {{ message }}
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Uploader Section -->
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-8 col-md-10">
+                <div class="glass-card">
+                    <form action="/predict" method="POST" enctype="multipart/form-data" id="upload-form">
+                        
+                        <!-- Drag & Drop Area -->
+                        <div class="upload-box" id="drop-area">
+                            <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
+                            <h4 class="mb-2">Drag and drop your skin image here</h4>
+                            <p class="text-muted mb-3">or click to browse local files</p>
+                            <span class="btn btn-outline-custom mb-2">Browse Image</span>
+                            <p class="small text-muted mb-0">Supported formats: PNG, JPG, JPEG, WEBP (Max 16MB)</p>
+                            <input type="file" name="file" id="file-input" accept=".png, .jpg, .jpeg, .webp" required>
+                        </div>
+
+                        <!-- Demo Button Helper -->
+                        <div class="text-center mt-3">
+                            <span class="text-muted small">Don't have an image?</span>
+                            <button type="button" class="btn btn-sm btn-outline-secondary ms-2" id="use-demo-btn" style="border-color: rgba(29, 158, 117, 0.4); color: var(--primary-color); font-weight: 500;">
+                                <i class="fa-solid fa-flask me-1"></i> Load Demo Image
+                            </button>
+                        </div>
+
+                        <!-- Image Preview -->
+                        <div class="preview-container" id="preview-box">
+                            <h5 class="my-3 text-start"><i class="fa-regular fa-image me-2 text-teal"></i>Selected Image Preview</h5>
+                            <img src="" alt="Skin Lesion Preview" id="img-preview" class="image-preview mb-3">
+                            <div class="d-grid mt-2">
+                                <button type="submit" class="btn btn-primary-custom py-3 text-uppercase" id="submit-btn">
+                                    <i class="fa-solid fa-stethoscope me-2"></i> Analyze Skin Image
+                                </button>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Matrix -->
+        <div class="row g-4 justify-content-center mb-5">
+            <div class="col-md-4">
+                <div class="glass-card feature-card text-center text-md-start">
+                    <div class="feature-icon-container mx-auto mx-md-0">
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
+                    <h4>Instant Analysis</h4>
+                    <p class="text-muted mb-0">Our advanced multimodal AI vision model runs instant classification scans in seconds.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="glass-card feature-card text-center text-md-start">
+                    <div class="feature-icon-container mx-auto mx-md-0">
+                        <i class="fa-solid fa-prescription-bottle-medical"></i>
+                    </div>
+                    <h4>Product Suggestions</h4>
+                    <p class="text-muted mb-0">Get customized lists of active OTC medications and treatments locally available in India.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="glass-card feature-card text-center text-md-start">
+                    <div class="feature-icon-container mx-auto mx-md-0">
+                        <i class="fa-solid fa-language"></i>
+                    </div>
+                    <h4>Tamil Support</h4>
+                    <p class="text-muted mb-0">Translates diagnostic findings and precautions into Tamil to bridge language barriers.</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-4 text-center mt-auto">
+        <div class="container">
+            <p class="mb-0 small text-muted">&copy; 2026 SkinSense AI | Internship Project by Muralidhar and Rohindh, Paavai Engineering College.</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JavaScript Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Interactive Client JS -->
+    <script>
+        const dropArea = document.getElementById('drop-area');
+        const fileInput = document.getElementById('file-input');
+        const previewBox = document.getElementById('preview-box');
+        const imgPreview = document.getElementById('img-preview');
+        const uploadForm = document.getElementById('upload-form');
+        const loadingOverlay = document.getElementById('loading-overlay');
+
+        // Drag & Drop event handlers
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight(e) {
+            e.preventDefault();
+            dropArea.classList.add('dragover');
+        }
+
+        function unhighlight(e) {
+            e.preventDefault();
+            dropArea.classList.remove('dragover');
+        }
+
+        dropArea.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+
+            if (files.length > 0) {
+                fileInput.files = files;
+                handleFiles(files[0]);
+            }
+        }
+
+        // Demo button click handler
+        const demoBtn = document.getElementById('use-demo-btn');
+        if (demoBtn) {
+            demoBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Create canvas
+                const canvas = document.createElement('canvas');
+                canvas.width = 224;
+                canvas.height = 224;
+                const ctx = canvas.getContext('2d');
+                
+                // Draw base skin tone
+                ctx.fillStyle = '#f5c3a6';
+                ctx.fillRect(0, 0, 224, 224);
+                
+                // Draw irregular lesion spot
+                ctx.fillStyle = '#7a3e20';
+                ctx.beginPath();
+                ctx.arc(112, 112, 40, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = '#4a2512';
+                ctx.beginPath();
+                ctx.arc(102, 105, 20, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Convert to file blob
+                canvas.toBlob(function(blob) {
+                    const file = new File([blob], "demo_lesion.jpg", { type: "image/jpeg" });
+                    
+                    // Create DataTransfer
+                    const dt = new DataTransfer();
+                    dt.items.add(file);
+                    fileInput.files = dt.files;
+                    
+                    // Show preview and button
+                    handleFiles(file);
+                }, 'image/jpeg');
+            });
+        }
+
+        // File browser listener
+        fileInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                handleFiles(this.files[0]);
+            }
+        });
+
+        // Preview rendering helper
+        function handleFiles(file) {
+            if (!file.type.startsWith('image/')) {
+                alert('Please upload an image file (PNG, JPG, JPEG, WEBP).');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onloadend = function() {
+                imgPreview.src = reader.result;
+                previewBox.style.display = 'block';
+                // Smooth scroll to preview
+                previewBox.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // Form Submit spinner trigger
+        uploadForm.addEventListener('submit', function() {
+            loadingOverlay.querySelector('h3').textContent = "Analyzing Skin Image...";
+            loadingOverlay.classList.add('active');
+        });
+
+    </script>
+</body>
+</html>

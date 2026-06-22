@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Results - SkinSense AI</title>
+    <!-- Bootstrap 5 CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom py-3">
+        <div class="container">
+            <a class="navbar-brand navbar-brand-custom" href="/" style="display: flex; flex-direction: column; align-items: flex-start; gap: 0;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    🔬 <span>SkinSense AI</span>
+                </div>
+                <span class="text-white-50" style="font-size: 0.7rem; font-weight: 400; margin-left: 28px; margin-top: -2px;">
+                    Internship Project by Muralidhar and Rohindh, Paavai Engineering College
+                </span>
+            </a>
+            <a href="/" class="btn btn-outline-custom btn-sm">
+                <i class="fa-solid fa-arrow-left me-1"></i> Back to Analyzer
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Results Container -->
+    <main class="container my-5">
+        
+        <div class="row g-4">
+            
+            <!-- Left Column: Image Preview & Core Metrics -->
+            <div class="col-lg-5 col-md-6">
+                <div class="glass-card mb-4 text-center">
+                    <h5 class="text-start mb-3"><i class="fa-regular fa-image text-teal me-2"></i>Analyzed Skin Image</h5>
+                    <div class="result-img-box mb-3">
+                        <img src="{{ url_for('static', filename=image_path) }}" alt="Analyzed Skin Lesion" class="result-img">
+                    </div>
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('download_report', filename=filename) }}" class="btn btn-primary-custom py-3 text-uppercase">
+                            <i class="fa-solid fa-file-pdf me-2"></i> Download PDF Report
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Alternative Predictions Card -->
+                <div class="glass-card">
+                    <h5 class="mb-3 text-teal"><i class="fa-solid fa-chart-bar me-2"></i>Differential Analysis</h5>
+                    <p class="small text-muted mb-3">Top alternative matches detected by the neural network:</p>
+                    
+                    {% if is_confident %}
+                        {% set start_idx = 1 %}
+                        {% set end_idx = 4 %}
+                    {% else %}
+                        {% set start_idx = 0 %}
+                        {% set end_idx = 3 %}
+                    {% endif %}
+                    
+                    {% for pred in all_predictions[start_idx:end_idx] %}
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="small" style="font-weight: 500;">{{ pred.label }}</span>
+                                <span class="badge bg-secondary">{{ pred.score }}%</span>
+                            </div>
+                            <div class="progress" style="height: 6px; background-color: rgba(255,255,255,0.05);">
+                                <div class="progress-bar" role="progressbar" style="width: {{ pred.score }}%; background-color: var(--text-muted);" aria-valuenow="{{ pred.score }}" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Right Column: Primary Diagnosis & Groq/AI Information -->
+            <div class="col-lg-7 col-md-6">
+                
+                <!-- Main Prediction Info -->
+                <div class="glass-card mb-4">
+                    {% if is_confident %}
+                        <span class="badge bg-secondary text-uppercase py-2 px-3 border border-secondary mb-2" style="font-weight: 500; font-size: 0.75rem;">
+                            Primary Classification Match
+                        </span>
+                    {% else %}
+                        <span class="badge bg-warning text-uppercase py-2 px-3 text-dark mb-2" style="font-weight: 600; font-size: 0.75rem; background-color: var(--accent-gold) !important;">
+                            Inconclusive Result
+                        </span>
+                    {% endif %}
+                    
+                    <h2 class="display-6 fw-bold mb-1" style="color: var(--text-headings);">{{ disease_name }}</h2>
+                    
+                    {% if not is_confident %}
+                        <div class="alert alert-warning border-0 mt-3 mb-2" style="background-color: #fffbeb; color: var(--accent-gold); font-size: 0.9rem; border-radius: 8px; border-left: 4px solid var(--accent-gold) !important;">
+                            <i class="fa-solid fa-triangle-exclamation me-2"></i> {{ warning }}
+                        </div>
+                    {% endif %}
+
+                    <!-- Confidence Rating and dynamic colored bar -->
+                    {% if confidence > 80 %}
+                        {% set bar_color = '#1D9E75' %} <!-- Green/Teal -->
+                        {% set text_color = '#1D9E75' %}
+                        {% set status_label = 'High Confidence Match' %}
+                    {% elif confidence >= 60 %}
+                        {% set bar_color = '#E5A800' %} <!-- Amber -->
+                        {% set text_color = '#E5A800' %}
+                        {% set status_label = 'Moderate Confidence' %}
+                    {% else %}
+                        {% set bar_color = '#d9534f' %} <!-- Red -->
+                        {% set text_color = '#d9534f' %}
+                        {% set status_label = 'Low Confidence' %}
+                    {% endif %}
+
+                    <div class="d-flex align-items-center justify-content-between mt-3">
+                        <span style="font-weight: 500; color: {{ text_color }};">
+                            <i class="fa-solid fa-shield-halved me-1"></i> {{ status_label }}
+                        </span>
+                        <h4 class="mb-0 fw-bold" style="color: {{ text_color }};">{{ confidence }}%</h4>
+                    </div>
+
+                    <!-- Progress Bar Container with JS animation -->
+                    <div class="progress-container mb-3">
+                        <div class="progress-bar-custom" style="background-color: {{ bar_color }};"></div>
+                    </div>
+                    
+                    <div class="border-top border-secondary pt-3 mt-3">
+                        <div class="text-danger small fw-bold">
+                            <i class="fa-solid fa-triangle-exclamation me-1"></i> WARNING: This is not a medical diagnosis. Please consult a dermatologist.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Disease Diagnosis & Medical Advice (Groq API HTML output) -->
+                <div class="glass-card mb-4" id="disease-info-container">
+                    <h4 class="text-teal mb-4"><i class="fa-solid fa-stethoscope me-2"></i>Clinical Guidance & Recommendations</h4>
+                    <div id="disease-info-content" class="text-dark" style="line-height: 1.6;">
+                        {{ disease_info|safe }}
+                    </div>
+                </div>
+
+                <!-- Treatment Options Section (Tabbed View) -->
+                <div class="glass-card mb-4" id="treatments-section" style="display: none;">
+                    <h4 class="text-teal mb-4"><i class="fa-solid fa-hand-holding-medical me-2"></i>Recommended Treatment Suggestions</h4>
+                    
+                    <!-- Tab Selection Pills -->
+                    <ul class="nav nav-pills mb-4" id="treatmentTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active px-4 py-2 fw-semibold" id="allopathy-tab" data-bs-toggle="pill" data-bs-target="#allopathy-pane" type="button" role="tab" aria-controls="allopathy-pane" aria-selected="true">
+                                <i class="fa-solid fa-pills me-2"></i>Allopathy
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link px-4 py-2 fw-semibold" id="homeopathy-tab" data-bs-toggle="pill" data-bs-target="#homeopathy-pane" type="button" role="tab" aria-controls="homeopathy-pane" aria-selected="false">
+                                <i class="fa-solid fa-leaf me-2"></i>Homeopathy
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link px-4 py-2 fw-semibold" id="siddha-tab" data-bs-toggle="pill" data-bs-target="#siddha-pane" type="button" role="tab" aria-controls="siddha-pane" aria-selected="false">
+                                <i class="fa-solid fa-mortar-pestle me-2"></i>Siddha
+                            </button>
+                        </li>
+                    </ul>
+                    
+                    <!-- Tab Panes Content -->
+                    <div class="tab-content p-4 border" id="treatmentTabContent" style="border-radius: 12px; background-color: #f8fafc; border-color: var(--border-color) !important;">
+                        <!-- Allopathy Pane -->
+                        <div class="tab-pane fade show active" id="allopathy-pane" role="tabpanel" aria-labelledby="allopathy-tab" tabindex="0">
+                            <div class="treatment-content text-dark" style="line-height: 1.6;"></div>
+                        </div>
+                        <!-- Homeopathy Pane -->
+                        <div class="tab-pane fade" id="homeopathy-pane" role="tabpanel" aria-labelledby="homeopathy-tab" tabindex="0">
+                            <div class="treatment-content text-dark" style="line-height: 1.6;"></div>
+                        </div>
+                        <!-- Siddha Pane -->
+                        <div class="tab-pane fade" id="siddha-pane" role="tabpanel" aria-labelledby="siddha-tab" tabindex="0">
+                            <div class="treatment-content text-dark" style="line-height: 1.6;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tamil Summary Card (populated via JS extraction) -->
+                <div class="tamil-card" id="tamil-summary-card" style="display: none;">
+                    <!-- Content will be moved here by JS -->
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-4 text-center mt-auto">
+        <div class="container">
+            <p class="mb-0 small text-muted">&copy; 2026 SkinSense AI | Internship Project by Muralidhar and Rohindh, Paavai Engineering College.</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JavaScript Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Animated Loading of Progress Bar & Extraction of Tamil Summary / Treatments -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // 1. Animate confidence bar width on page load
+            const progressBar = document.querySelector('.progress-bar-custom');
+            if (progressBar) {
+                setTimeout(() => {
+                    progressBar.style.width = '{{ confidence }}%';
+                }, 150);
+            }
+
+            // 2. Function to extract a section by heading keyword
+            function extractSection(headingKeyword, targetCardId) {
+                const contentBox = document.getElementById("disease-info-content");
+                const targetCard = document.getElementById(targetCardId);
+                if (!contentBox || !targetCard) return false;
+
+                const headings = contentBox.querySelectorAll("h3");
+                let matchedHeading = null;
+
+                for (let h of headings) {
+                    const text = h.textContent.toLowerCase();
+                    if (text.includes(headingKeyword.toLowerCase())) {
+                        matchedHeading = h;
+                        break;
+                    }
+                }
+
+                if (matchedHeading) {
+                    const contentContainer = targetCard.querySelector(".treatment-content") || targetCard;
+                    const fragment = document.createDocumentFragment();
+
+                    let nextElement = matchedHeading.nextElementSibling;
+                    while (nextElement && nextElement.tagName !== 'H3') {
+                        const targetSibling = nextElement.nextElementSibling;
+                        fragment.appendChild(nextElement); // moves the element
+                        nextElement = targetSibling;
+                    }
+
+                    // Clear and append
+                    contentContainer.innerHTML = '';
+                    contentContainer.appendChild(fragment);
+
+                    // Remove the header from its old position
+                    matchedHeading.remove();
+
+                    return true;
+                }
+                return false;
+            }
+
+            // 3. Extract the three treatment systems
+            const hasAllopathy = extractSection("allopathy", "allopathy-pane");
+            const hasHomeopathy = extractSection("homeopathy", "homeopathy-pane");
+            const hasSiddha = extractSection("siddha", "siddha-pane");
+
+            // Hide tab buttons for missing sections
+            if (!hasAllopathy) document.getElementById("allopathy-tab")?.parentElement.remove();
+            if (!hasHomeopathy) document.getElementById("homeopathy-tab")?.parentElement.remove();
+            if (!hasSiddha) document.getElementById("siddha-tab")?.parentElement.remove();
+
+            // Set the first visible tab as active
+            const visibleTabButtons = document.querySelectorAll("#treatmentTabs button");
+            if (visibleTabButtons.length > 0) {
+                // Remove active classes from all tab buttons and panes
+                document.querySelectorAll("#treatmentTabs button").forEach(btn => {
+                    btn.classList.remove("active");
+                    btn.setAttribute("aria-selected", "false");
+                });
+                document.querySelectorAll("#treatmentTabContent .tab-pane").forEach(pane => {
+                    pane.classList.remove("show", "active");
+                });
+
+                // Activate the first visible tab
+                const firstTab = visibleTabButtons[0];
+                firstTab.classList.add("active");
+                firstTab.setAttribute("aria-selected", "true");
+                
+                const targetPaneId = firstTab.getAttribute("data-bs-target");
+                const targetPane = document.querySelector(targetPaneId);
+                if (targetPane) {
+                    targetPane.classList.add("show", "active");
+                }
+
+                // Show the main container
+                document.getElementById("treatments-section").style.display = "block";
+            }
+
+            // 4. Extract Tamil Summary from main content box and place in the designated yellow card
+            const contentBox = document.getElementById("disease-info-content");
+            const tamilCard = document.getElementById("tamil-summary-card");
+            
+            if (contentBox && tamilCard) {
+                const headings = contentBox.querySelectorAll("h3");
+                let tamilHeading = null;
+                
+                // Search for headings related to Tamil
+                for (let h of headings) {
+                    const text = h.textContent.toLowerCase();
+                    if (text.includes("tamil") || text.includes("தமிழ்")) {
+                        tamilHeading = h;
+                        break;
+                    }
+                }
+                
+                if (tamilHeading) {
+                    const container = document.createElement("div");
+                    
+                    // Create title
+                    const title = document.createElement("div");
+                    title.className = "tamil-title";
+                    title.innerHTML = '<i class="fa-solid fa-language me-2"></i>' + tamilHeading.innerHTML;
+                    container.appendChild(title);
+                    
+                    // Pull siblings until the next h3 is found
+                    let nextElement = tamilHeading.nextElementSibling;
+                    while (nextElement && nextElement.tagName !== 'H3') {
+                        const targetSibling = nextElement.nextElementSibling;
+                        container.appendChild(nextElement); // moves the element
+                        nextElement = targetSibling;
+                    }
+                    
+                    // Remove the header from its old position
+                    tamilHeading.remove();
+                    
+                    // Load the content into the light yellow box and display it
+                    tamilCard.appendChild(container);
+                    tamilCard.style.display = "block";
+                }
+            }
+        });
+      </script>
+</body>
+</html>

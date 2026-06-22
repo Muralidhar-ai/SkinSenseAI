@@ -1,0 +1,8 @@
+flask
+pillow
+numpy
+groq
+python-dotenv
+reportlab
+scikit-learn
+matplotlib

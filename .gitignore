@@ -1,0 +1,15 @@
+# Environment variables
+.env
+
+# Python caching
+__pycache__/
+*.pyc
+
+# Local dataset & model files
+data/
+model/skinsense_model.h5
+model/class_labels.json
+
+# Temporary uploads (but preserve the directory structure)
+static/uploads/*
+!static/uploads/.gitkeep
