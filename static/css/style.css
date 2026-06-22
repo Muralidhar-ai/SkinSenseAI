@@ -127,6 +127,16 @@ h1, h2, h3, h4, h5, h6 {
     background: #f0fdfa; /* Soft teal tint */
 }
 
+.upload-box input[type="file"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
 .upload-icon {
     font-size: 2.5rem;
     color: var(--primary-color);
